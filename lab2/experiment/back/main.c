@@ -9,8 +9,10 @@
 #include "stat_files.h"
 #include "modes.h"
 
-#define NUM_ATTEMPTS 1000
+#define NUM_ATTEMPTS 100
 #define ARRAY_SIZE 10000000
+
+#define RANDOM_SEED 2315342
 
 #ifdef _OPENMP
     #define MAX_THREADS 10
@@ -33,6 +35,7 @@ int main(int argc, char *argv[]) {
 #endif  // _OPENMP
 
     bool error = false;
+    srand(RANDOM_SEED);
 
     files_t files;
     error = read_files_path(&files, argc, argv);
@@ -100,8 +103,8 @@ experiment_t *menu_mode(int size, int num_attempts, int mode) {
         break;
 
     case modeRandom:
-        array = init_random_array(size);
-        target = rand() % size;
+        array = init_sorted_array(size);
+        target = -1; // random target
         break;
 
     case modeAll:
@@ -111,7 +114,7 @@ experiment_t *menu_mode(int size, int num_attempts, int mode) {
 
     case modeNone:
         array = init_sorted_array(size);
-        target = -1;
+        target = -2; // no target
         break;
     }
 
@@ -122,6 +125,7 @@ experiment_t *menu_mode(int size, int num_attempts, int mode) {
 double clock_experiment_average(const experiment_t *experiment) {
     double time = 0;
     for (int i = 0; i < experiment->num_attempts; ++i) {
+        if (experiment)
         time += clock_function(experiment);
     }
 
@@ -153,7 +157,12 @@ double clock_function(const experiment_t *expreriment) {
 int find_array_target(const experiment_t *experiment) {
     int index = -1;
 
-    #pragma omp parallel num_threads(experiment->num_threads) shared(experiment, index)
+    int target = experiment->target;
+    if (target == -1) {
+        target = rand() % experiment->size;
+    }
+
+    #pragma omp parallel num_threads(experiment->num_threads) shared(experiment, target, index)
     {
         #pragma omp for
         for(int i = 0; i < experiment->size; ++i)
@@ -161,7 +170,7 @@ int find_array_target(const experiment_t *experiment) {
             if (index != -1) continue;
 
             #pragma omp critical
-            if (experiment->array[i] == experiment->target) {
+            if (experiment->array[i] == target) {
                 index = i;
             }
         }

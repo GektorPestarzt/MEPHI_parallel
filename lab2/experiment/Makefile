@@ -11,12 +11,12 @@ OMPFLAGS = -fopenmp
 
 STAT_DIR = ../stat_files/
 
-all: linear parallel clean
+all: parallel clean
 
 linear: $(BACK)
 	@$(CC) $(CFLAGS) $^ $(LDFLAGS) -o linear.out
 	@mkdir -p $(STAT_DIR)
-	@./linear.out $(STAT_DIR) 
+	@./linear.out $(STAT_DIR)
 
 parallel: $(BACK)
 	@$(CC) $(CFLAGS) $^ $(LDFLAGS) $(OMPFLAGS) -o parallel.out
