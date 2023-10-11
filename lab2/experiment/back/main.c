@@ -25,7 +25,7 @@ experiment_t *menu_mode(int size, int num_attempts, int mode);
 
 double clock_experiment_average(const experiment_t *experiment);
 double clock_function(const experiment_t *expreriment);
-int find_array_target(const experiment_t *experiment);
+int find_array_target(const int *array, int size, int target, int num_threads);
 
 int main(int argc, char *argv[]) {
 #ifdef _OPENMP
@@ -53,6 +53,10 @@ int main(int argc, char *argv[]) {
             printf("Done.\n");
             return 1;
         }
+
+        fprintf(files.avg, "%s,%s%d\n", "threads", "mode ", mode);
+        fprintf(files.spu, "%s,%s%d\n", "threads", "mode ", mode);
+        fprintf(files.eff, "%s,%s%d\n", "threads", "mode ", mode);
 
         experiment_t *experiment;
         experiment = menu_mode(ARRAY_SIZE, NUM_ATTEMPTS, mode);
@@ -133,7 +137,11 @@ double clock_experiment_average(const experiment_t *experiment) {
     return time;
 }
 
-double clock_function(const experiment_t *expreriment) {
+double clock_function(const experiment_t *experiment) {
+    int target = experiment->target;
+    if (target == -1) {
+        target = rand() % experiment->size;
+    }
 
 #ifdef _OPENMP
     double start = omp_get_wtime();
@@ -141,7 +149,7 @@ double clock_function(const experiment_t *expreriment) {
     double start = clock();
 #endif  //_OPENMP
 
-    find_array_target(expreriment);
+    find_array_target(experiment->array, experiment->size, target, experiment->num_threads);
 
 #ifdef _OPENMP
     double end = omp_get_wtime();
@@ -154,24 +162,27 @@ double clock_function(const experiment_t *expreriment) {
     return time;
 }
 
-int find_array_target(const experiment_t *experiment) {
+int find_array_target(const int *array, int size, int target, int num_threads) {
     int index = -1;
+    bool flag = false;
 
-    int target = experiment->target;
-    if (target == -1) {
-        target = rand() % experiment->size;
-    }
-
-    #pragma omp parallel num_threads(experiment->num_threads) shared(experiment, target, index)
+    #pragma omp parallel num_threads(num_threads) shared(array, target, index)
     {
         #pragma omp for
-        for(int i = 0; i < experiment->size; ++i)
+        for(int i = 0; i < size; ++i)
         {
-            if (index != -1) continue;
+#ifdef _OPENMP
+            if (flag) continue;
+#else
+            if (flag) break;
+#endif  // _OPENMP
 
-            #pragma omp critical
-            if (experiment->array[i] == target) {
-                index = i;
+            if (array[i] == target) {
+                #pragma omp critical
+                {
+                    index = i;
+                    flag = true;
+                }
             }
         }
     }

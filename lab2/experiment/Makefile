@@ -14,7 +14,7 @@ STAT_DIR = ../stat_files/
 all: parallel clean
 
 linear: $(BACK)
-	@$(CC) $(CFLAGS) $^ $(LDFLAGS) -o linear.out
+	@$(CC) $^ $(LDFLAGS) -o linear.out
 	@mkdir -p $(STAT_DIR)
 	@./linear.out $(STAT_DIR)
 
