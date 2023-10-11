@@ -9,7 +9,7 @@
 #include "stat_files.h"
 #include "modes.h"
 
-#define NUM_ATTEMPTS 100
+#define NUM_ATTEMPTS 10
 #define ARRAY_SIZE 10000000
 
 #define RANDOM_SEED 2315342
@@ -96,14 +96,14 @@ experiment_t *menu_mode(int size, int num_attempts, int mode) {
         target = 0;
         break;
 
-    case modeLast:
-        array = init_sorted_array(size);
-        target = size - 1;
-        break;
-
     case modeMiddle:
         array = init_sorted_array(size);
         target = size / 2;
+        break;
+
+    case modeLast:
+        array = init_sorted_array(size);
+        target = size - 1;
         break;
 
     case modeRandom:
