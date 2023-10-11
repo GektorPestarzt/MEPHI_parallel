@@ -9,7 +9,7 @@ int *init_random_array(int size) {
         return NULL;
     }
 
-    srand(RANDOM_SEED);
+    srand(RANDOM_SEED_1);
     for (int i = 0; i < size; ++i) { array[i] = rand(); }
 
     return array;
