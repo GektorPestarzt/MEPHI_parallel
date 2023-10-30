@@ -51,6 +51,25 @@ int *init_identical_array(int size, int element) {
     return array;
 }
 
+int *init_mixed_array(int size) {
+    int *dst = (int *) malloc (size * sizeof(int));
+
+    if (dst == NULL) {
+        return NULL;
+    }
+
+    int sh = size / 2;
+    if (size % 2) ++sh;
+
+    for (int i = 0; i < size / 2; ++i) { 
+        dst[2*i] = sh - i - 1;
+        dst[2*i + 1] = i;
+    }
+    dst[size - 1] = 0;
+
+    return dst;
+}
+
 int *init_copy_array(const int *src, int size) {
     int *dst = (int *) malloc (size * sizeof(int));
 

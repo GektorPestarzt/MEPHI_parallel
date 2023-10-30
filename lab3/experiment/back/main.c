@@ -113,6 +113,10 @@ experiment_t *menu_mode(int size, int num_attempts, int mode) {
     case modeRange10000:
         array = init_random_array(size, 10000);
         break;
+
+    case modeMixed:
+        array = init_mixed_array(size);
+        break;
     }
 
 

@@ -8,6 +8,7 @@ enum modes {
     modeRange1,
     modeRange100,
     modeRange10000,
+    modeMixed,
     numberOfModes
 };
 
