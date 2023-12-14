@@ -1,3 +1,2 @@
 # MEPHI_parallel
-
-## My university parallel projects C 2023 
+My university parallel projects C 2023 
